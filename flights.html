@@ -1,61 +1,24 @@
 <!DOCTYPE html>
 <html>
-	
-	<head>
-	<title>Northwest Airlines</title>
+<head>
+	<title>Cash Flow Simulator Login</title>
 	<link rel="stylesheet" href="style.css" type = "text/css">
-	 <script
-                src="https://code.jquery.com/jquery-3.3.1.min.js"
-                integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-                crossorigin="anonymous"></script>
-        <script src="script.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>
+	<script src = 'script.js'> </script>
+
 </head>
-	<body>
-		<div class = 'chooseDiv'> Please Select an Airline to View / Modify Financial Projections</div>
-			<div class="dropdown">
-  				<button onclick="dropdown()" class="dropbtn">Airlines</button>
-  					<div id="myDropdown" class="dropdown-content">
-    					<input type="text" placeholder="Search.." id="myInput" onkeyup="filterFunction()">
-				    	<p class = 'al'>American Airlines</p>
-				    	<p class = 'al'>Allegiant Air</p>
-				    	<p class = 'al'>AeroMéxico</p>
-				    	<p class = 'al'>Air New Zeland</p>
-				    	<p class = 'al'>Alaska Airlines</p>
-				    	<p class = 'al'>Alitalia</p>
-				    	<p class = 'al'>Aer Lingus</p>
-				    	<p class = 'al'>Arkefly</p>
-				    	<p class = 'al'>AirTran Airways</p>
-				    	<p class = 'al'>British Airways</p>
-				    	<p class = 'al'>China Airlines</p>
-				    	<p class = 'al'>Copa Airlines</p>
-				    	<p class = 'al'>Delta Airlines</p>
-				    	<p class = 'al'>Etihad Airways</p>
-				    	<p class = 'al'>Finnair</p>
-				    	<p class = 'al'>Frontier Airlines</p>
-				    	<p class = 'al'>Hawaiian Airlines</p>
-				    	<p class = 'al'>Iberia Airlines</p>
-				    	<p class = 'al'>Japan Airlines</p>
-				    	<p class = 'al'>JetBlue Airways</p>
-				    	<p class = 'al'>KLM Royal Dutch Airlines</p>
-				    	<p class = 'al'>Lufthansa</p>
-				    	<p class = 'al'>Qatar Airways</p>
-				    	<p class = 'al'>Sun Country Airlines</p>
-				    	<p class = 'al'>Singapore Airlines</p>
-				    	<p class = 'al'>Southwest Airlines</p>
-				    	<p class = 'al'>Spirit Airlines</p>
-				    	<p class = 'al'>TAM Brazilian Airlines</p>
-				    	<p class = 'al'>Turkish Airlines</p>
-				       	<p class = 'al'>United Airlines</p>
-				       	<p class = 'al'>US Airways</p>
-				       	<p class = 'al'>Virgin America</p>
-				       	<p class = 'al'>Virgin Atlantic Airways</p>
-				       	<p class = 'al'>Virgin Australia</p>
-				       	<p class = 'al'>WestJet</p>
-				       	<p class = 'al'>Island Air (WP)</p>
-				       	<p class = 'al'>Silver Airways (3M)</p>
-					</div>
-		</div>
+<body>
+	<h1>Cash Flow Simulator Login</h1>
+	<div id = 'login'>
+		User:
+		<input type = 'text' id = 'login_user'> <br>
+		Password: 
+	<input type = 'text' id = 'login_pass'>
+	<br>
+	<button id = 'login_btn'>Login</button>
+	</div>
 
 	
-	</body>
-</html>	
+
+</body>
+</html>
