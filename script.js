@@ -37,7 +37,7 @@ function build_flight_interface(){
 		   success: (response) => {
 		   		let count = 0;
 			   	response.forEach(function(object) { 
-			   	var fl_num = object.number;
+			   	var fl_num = object.id;
 			   	var dept_id = object.departure_id;
 			   	var arr_id = object.arrival_id;
 			   	var dep_tim = object.departs_at;
@@ -113,9 +113,9 @@ function build_analytics_interface()	{
 	topDiv.append('<button id = update_CF>Compute</button>');
 	body.append(topDiv);
 	let bottomDiv = $('<div></div>');
-	bottomDiv.append('Total Revenue: ' + revenue + '<br>');
-	bottomDiv.append('Total Costs: ' + cost+ '<br>');
-	bottomDiv.append('Profit: ' + profit);
+	bottomDiv.append('Total Revenue: $' + revenue + '<br>');
+	bottomDiv.append('Total Costs: $' + cost+ '<br>');
+	bottomDiv.append('Profit: $' + profit);
 	body.append(bottomDiv);
 
 }
@@ -130,16 +130,19 @@ function build_instance_interface()	{
 	new_inst_div.append('<input type = "text" id = "date_input">');
 	body.append(new_inst_div);
 	body.append('<button class = "createInstance" id = > Create New Instance of this Flight </button>');
-	let listDiv = $('<div id = "inst_list">Instances</div>');
-
+	let listDiv = $('<div id = "inst_list">Instances: </div>');
+	console.log(flight_id);
 	$.ajax(root_url + '/instances?filter[flight_id]=' + flight_id,
 	       {
 		   type: 'GET',
 		   xhrFields: {withCredentials: true},
 		   dataType: 'json',
 		   success: (response) => {
+		   		console.log('here');
 		   		console.log(response);
-			   response.forEach(function(object) {listDiv.append('<p>' + object.date + '</p>' + '<br>')});
+			   response.forEach(function(object) {
+			   	console.log(object);
+			   	listDiv.append('<p>' + object.date + '</p>')});
 		   },
 		   error: () => {
 		   		console.log('error');
@@ -304,17 +307,22 @@ $('body').on('click', '.back_to_flights', function()	{
 });
 
 $('body').on('click', '#update_CF', function()	{
-	let rpf = $('#rev_per_flight').val();
-	let cpf = $('#cost_per_flight').val();
-	let cCount = 0;
+	let rpf = parseInt($('#rev_per_flight').val());
+	let cpf = parseInt($('#cost_per_flight').val());
+	tot_inst = 0;
+	revenue = 0;
+	cost = 0;
+	profit = 0;
 	$.ajax(root_url + '/flights?filter[airline_id]=' + sel_id,
 	       {
 		   type: 'GET',
 		   xhrFields: {withCredentials: true},
 		   dataType: 'json',
 		   success: (response) => {
+		   		//console.log('here');
 			 	response.forEach(function(object) {
-			 		flight_id = object.number;
+			 		flight_id = object.id;
+			 		//console.log(flight_id);
 
 			 		$.ajax(root_url + '/instances?filter[flight_id]=' + flight_id,
 	       			{
@@ -322,14 +330,25 @@ $('body').on('click', '#update_CF', function()	{
 				   	xhrFields: {withCredentials: true},
 				   	dataType: 'json',
 				   	success: (response) => {
-					   	response.forEach(function(object) {tot_inst++});
+					   	response.forEach(function(object) {
+					   		tot_inst++;
+					   		console.log(tot_inst);
+					   	});
+					   revenue = tot_inst*rpf;
+					   cost = tot_inst*cpf;
+					   profit = revenue - cost;
+					   build_analytics_interface();
+					   
 				   	},
 				   	error: () => {
 				       alert('error');
 				   	}
 	       		   	});
 
-
+			 		   tot_inst = 0;
+					   revenue = 0;
+					   cost = 0;
+					   profit = 0;
 
 
 			 	});
@@ -345,10 +364,6 @@ $('body').on('click', '#update_CF', function()	{
 		   }
 	       });
 
-	revenue = tot_inst*rpf;
-	cost = tot_inst*cpf;
-	profit = revenue - cost;
-	build_analytics_interface();
 
 });
 
@@ -373,13 +388,14 @@ $('body').on('click', '.createInstance', function()	{
 			},	
 		   success: (response) => {
 			  console.log('New Instance Posted');
+			  build_instance_interface();
 		   },
 		   error: () => {
 		       alert('error');
 		   }
 	       });
 
-	build_instance_interface();
+	
 });
 
 
