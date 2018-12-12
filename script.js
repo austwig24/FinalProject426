@@ -2,6 +2,10 @@
 var root_url = 'http://comp426.cs.unc.edu:3001';
 var sel_airline = '';
 var sel_id = 0;
+var flight_id = 0;
+var revenue = 0;
+var cost = 0;
+var profit = 0;
 
 
 function build_homepage() {
@@ -20,28 +24,70 @@ function build_flight_interface(){
 	body.empty();
 	body.append('<button id = "home_button"> Home </button>');
 	let listDiv = $('<div id = "flightsDiv">Flights</div>');
+	let ct = $('<p>Number of Optional Flights: </p>');
 	console.log(sel_id);
+	
 	$.ajax(root_url + '/flights?filter[airline_id]=' + sel_id,
 	       {
 		   type: 'GET',
 		   xhrFields: {withCredentials: true},
 		   success: (response) => {
 		   		let count = 0;
-			   response.forEach(function(object) { 
-			   	let fl_num = object.number;
-			   	let dept_id = object.departure_id;
-			   	let arr_id = object.arrival_id;
+			   	response.forEach(function(object) { 
+			   	var fl_num = object.number;
+			   	var dept_id = object.departure_id;
+			   	var arr_id = object.arrival_id;
+			   	var dep_tim = object.departs_at;
+			   	var dep_code = '';
+		   		var arr_code = '';
+		   		let but = $('<button class="in_flight" id=' + fl_num + '>' + '</button>');
+
+			   		$.ajax(root_url + '/airports/' + dept_id,
+			   		{
+			   		type: 'GET',
+			   		xhrFields: {withCredentials: true},
+			   		success: (response) => {
+			   			but.append(response.code + ' to '); 
+
+
+			   			$.ajax(root_url + '/airports/' + arr_id,
+			   			{
+			   			type: 'GET',
+			   			xhrFields: {withCredentials: true},
+			   			success: (response) => {
+			   			but.append(response.code); 
+			   			but.append(' Departing at ' + dep_tim.substring(11,16));
+			   			},
+			   			error: () => {
+		       			alert('error with arrival ID');
+		   				}
+
+			   			});
+
+
+
+
+			   			},
+			   			error: () => {
+		       			alert('error with departure ID');
+		   				}
+
+			   		});
+
+			   		
+
+
 			   	count++;
-			   listDiv.append('<button class="in_flight" id=' + fl_num + '>Flight Number: ' + fl_num + '</button>');
-			   });
-			  	body.append('<p>Number of Optional Flights: ' + count + '</p>');
+			   listDiv.append(but);
+			   });	
+			   ct.append(count);
 		   },
 		   error: () => {
 		       alert('error with airline ID');
 		   }
 	       });
 
-	
+	body.append(ct);
 	body.append(listDiv);
 }
 
@@ -55,19 +101,56 @@ function build_analytics_interface()	{
 	// head.append('<script src = "google.js"> </script>');
 	let body = $('body');
 	body.empty();
-	body.append('<button id = "home_button"> Home </button>');
-	let listDiv = $('<div id = "analyticsDiv">Cash Flow Analytics</div>');
-	body.append(listDiv);
+	body.append('<button id = "home_button"> Home </button><br>');
+	let topDiv = $('<div></div>');
+	topDiv.append('Revenue Per Flight:<br>');
+	topDiv.append('<input type = "text" id = "rev_per_flight"><br>');
+	topDiv.append('Cost Per Flight:<br>');
+	topDiv.append('<input type = "text" id = "cost_per_flight">');
+	body.append(topDiv);
+	let bottomDiv = $('<div></div>');
+	bottomDiv.append('Total Revenue: ' + revenue + '<br>');
+	bottomDiv.append('Total Costs: ' + cost+ '<br>');
+	bottomDiv.append('Profit: ' + profit);
+	body.append(bottomDiv);
+
 }
 
 
+function build_instance_interface()	{
+	let body = $('body');
+	body.empty();
+	body.append('<button class= back_to_flights>Return to All Flights</button>')
+	let new_inst_div = $('<div id = "instance_div"></div>');
+	new_inst_div.append('Date: (YYYY-MM-DD)');
+	new_inst_div.append('<input type = "text" id = "date_input">');
+	body.append(new_inst_div);
+	body.append('<button class = "createInstance" id = > Create New Instance of this Flight </button>');
+	let listDiv = $('<div id = "inst_list">Instances</div>');
 
+	$.ajax(root_url + '/instances?filter[flight_id]=' + flight_id,
+	       {
+		   type: 'GET',
+		   xhrFields: {withCredentials: true},
+		   dataType: 'json',
+		   success: (response) => {
+		   		console.log(response);
+			   response.forEach(function(object) {listDiv.append('<p>' + object.date + '</p>' + '<br>')});
+		   },
+		   error: () => {
+		   		console.log('error');
+		       alert('error');
+		   }
+	       });
+	body.append(listDiv);
+
+}
 
 
 function build_sel_page()	{
 	let body = $('body');
 	body.empty();
-	body.append('<button id = "logout"> Logout </button>')
+	body.append('<button id = "logout"> Logout </button>');
 	body.append('<div class = "chooseDiv"> Please Select an Airline to View / Modify Financial Projections</div>');
 	let dropdown = $('<div class="dropdown"></div>');
 	dropdown.append('<button onclick="dropdown()" class="dropbtn">Airlines</button>');
@@ -188,7 +271,6 @@ $('body').on('click', '#choose_new_al', function()	{
 
 
 $('body').on('click', '#hp', function()	{
-
 	build_homepage();
 });
 
@@ -204,6 +286,39 @@ $('body').on('click', '#hp_an', function()	{
 	build_analytics_interface();
 });
 
+$('body').on('click', '.in_flight', function()	{
+	flight_id = parseInt($(this).attr('id'));
+	build_instance_interface();
+});
+
+$('body').on('click', '.back_to_flights', function()	{
+	build_flight_interface();
+});
+
+$('body').on('click', '.createInstance', function()	{
+	// Read date from input
+	let in_date = $('#date_input').val();
+	$.ajax(root_url + '/instances',
+	       {
+		   type: 'POST',
+		   xhrFields: {withCredentials: true},
+		   dataType: 'json',
+		   data: {
+		   		"instance": {
+		       		"flight_id": flight_id,
+		       		"date": in_date
+		   				}
+			},	
+		   success: (response) => {
+			  console.log('New Instance Posted');
+		   },
+		   error: () => {
+		       alert('error');
+		   }
+	       });
+
+	build_instance_interface();
+});
 
 
 
