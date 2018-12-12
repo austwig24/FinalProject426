@@ -6,6 +6,9 @@ var flight_id = 0;
 var revenue = 0;
 var cost = 0;
 var profit = 0;
+var rpf = 0;
+var cpf = 0;
+var tot_inst = 0;
 
 
 function build_homepage() {
@@ -107,6 +110,7 @@ function build_analytics_interface()	{
 	topDiv.append('<input type = "text" id = "rev_per_flight"><br>');
 	topDiv.append('Cost Per Flight:<br>');
 	topDiv.append('<input type = "text" id = "cost_per_flight">');
+	topDiv.append('<button id = update_CF>Compute</button>');
 	body.append(topDiv);
 	let bottomDiv = $('<div></div>');
 	bottomDiv.append('Total Revenue: ' + revenue + '<br>');
@@ -148,6 +152,10 @@ function build_instance_interface()	{
 
 
 function build_sel_page()	{
+	revenue = 0;
+	cost = 0;
+	profit = 0;
+
 	let body = $('body');
 	body.empty();
 	body.append('<button id = "logout"> Logout </button>');
@@ -294,6 +302,60 @@ $('body').on('click', '.in_flight', function()	{
 $('body').on('click', '.back_to_flights', function()	{
 	build_flight_interface();
 });
+
+$('body').on('click', '#update_CF', function()	{
+	let rpf = $('#rev_per_flight').val();
+	let cpf = $('#cost_per_flight').val();
+	let cCount = 0;
+	$.ajax(root_url + '/flights?filter[airline_id]=' + sel_id,
+	       {
+		   type: 'GET',
+		   xhrFields: {withCredentials: true},
+		   dataType: 'json',
+		   success: (response) => {
+			 	response.forEach(function(object) {
+			 		flight_id = object.number;
+
+			 		$.ajax(root_url + '/instances?filter[flight_id]=' + flight_id,
+	       			{
+		   			type: 'GET',
+				   	xhrFields: {withCredentials: true},
+				   	dataType: 'json',
+				   	success: (response) => {
+					   	response.forEach(function(object) {tot_inst++});
+				   	},
+				   	error: () => {
+				       alert('error');
+				   	}
+	       		   	});
+
+
+
+
+			 	});
+
+
+
+
+
+
+		   },
+		   error: () => {
+		       alert('error');
+		   }
+	       });
+
+	revenue = tot_inst*rpf;
+	cost = tot_inst*cpf;
+	profit = revenue - cost;
+	build_analytics_interface();
+
+});
+
+
+
+
+
 
 $('body').on('click', '.createInstance', function()	{
 	// Read date from input
